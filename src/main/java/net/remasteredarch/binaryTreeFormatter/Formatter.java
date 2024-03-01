@@ -58,19 +58,15 @@ class MinHeap<N extends Number & Comparable<N>> extends Heap<N> {
 	public void add(N value) {
 		super.add(value);
 
-		// bubbleUp(lastNodeIndex());
+		bubbleUp(lastNodeIndex());
 	}
 
 	protected void bubbleUp(int index) {
 		if (!hasParent(index))
 			return;
 
-		System.out.println("New heap: " + this.toString());
-		System.out.printf("%2d: %s at %d (%d)\n", index, hasParent(index), parentIndex(index), parent(index));
-
 		if (parent(index).compareTo(get(index)) == 1) {
 			swap(parentIndex(index), index);
-			System.out.println("Bubbling up " + index);
 			bubbleUp(parentIndex(index));
 		}
 	}
