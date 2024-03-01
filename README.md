@@ -7,7 +7,7 @@ Written and tested with OpenJDK 21 on Ubuntu 20.04 & 22.04. It may work on other
 ## Usage
 
 ```
-$ java src/net/remasteredarch/binaryTreeFormatter/Formatter.java
+$ java src/main/java/net/remasteredarch/binaryTreeFormatter/Formatter.java
 ```
 
 ## License
