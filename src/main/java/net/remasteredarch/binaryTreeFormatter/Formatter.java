@@ -35,13 +35,14 @@ public class Formatter {
 		int rowSize = 1;
 		System.out.print("* ");
 		for (int heapIndex = 1; heapIndex < heap.size(); heapIndex++) {
-			System.out.printf("%" + MAX_NODE_LENGTH + "s ", heap.get(heapIndex));
+			System.out.printf("%-" + MAX_NODE_LENGTH + "s ", heap.get(heapIndex));
 			if (heapIndex == splitIndex) {
 				System.out.print("\n* ");
 				rowSize *= 2;
 				splitIndex += rowSize;
 			}
 		}
+		System.out.println();
 	}
 }
 
