@@ -2,6 +2,8 @@
 
 Prints out a binary tree with formatting.
 
+Written and tested with OpenJDK 21 on Ubuntu 20.04 & 22.04. It may work on other versions, but there is no guarantee.
+
 ## Usage
 
 ```
