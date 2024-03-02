@@ -23,6 +23,7 @@ public class Formatter {
 	private static final int NODE_NUM_RANGE = 50; // max value used for nodes in the heap (0..(NODE_NUM_RANGE -1))
 	private static final int MAX_NODE_LENGTH = (NODE_NUM_RANGE - 1 + "").length();
 	private static final int NODE_COUNT = 20;
+	private static final String PADDING = "  "; // between nodes in the tree
 
 	private static final String RESET = "\033[0m";
 	private static final String BOLD = "\033[1m";
@@ -33,34 +34,64 @@ public class Formatter {
 		Supplier<Integer> rand = new RandomInteger(NODE_NUM_RANGE);
 		MinHeap<Integer> heap = new MinHeap<>(NODE_NUM_RANGE, NODE_COUNT, rand);
 
-		System.out.println(FAINT + BOLD + "Heap: " + RESET + FAINT + heap.toString() + RESET);
+		System.out.println(FAINT + BOLD + "Heap (" + heap.size() + "):" + RESET + FAINT + heap.toString() + RESET);
 
+		System.out.print(BOLD + "\nTree:" + RESET);
+		printTree(heap);
+	}
+
+	private static void printTree(MinHeap<Integer> heap) {
 		int splitIndex = 1;
 		int rowSize = 1;
-		System.out.print(BOLD + "\nTree:\n* " + RESET);
+		int indentSize = getMaxRowSize(NODE_COUNT);
+		String padding = makePadding(indentSize);
+
+		indent(rowSize, indentSize);
+
 		for (int heapIndex = 1; heapIndex < heap.size(); heapIndex++) {
-			System.out.printf("%-" + MAX_NODE_LENGTH + "s ", heap.get(heapIndex));
+			System.out.printf("%s%0" + MAX_NODE_LENGTH + "d%s%s", padding, heap.get(heapIndex), padding, PADDING);
+
 			if (heapIndex == splitIndex) {
-				System.out.print("\n* ");
+				indentSize /= 2;
 				rowSize *= 2;
 				splitIndex += rowSize;
+				padding = makePadding(indentSize);
+				indent(rowSize, indentSize);
 			}
 		}
+
 		System.out.println();
 	}
-}
 
-class RandomInteger implements Supplier<Integer> {
-	private static Random rand = new Random();
-	private int range;
+	private static String makePadding(int rowSize) {
+		String padding = "";
 
-	public RandomInteger(int range) {
-		this.range = range;
+		for (int i = 0; i < rowSize - 1; i++) {
+			padding += PADDING;
+		}
+
+		return padding;
 	}
 
-	@Override
-	public Integer get() {
-		return rand.nextInt(range);
+	private static int getMaxRowSize(int heapSize) {
+		int count = 0;
+
+		// there was logic when this was written.
+		// however, i realize that i implemented the logic wrong.
+		// i'm not quite sure why this works.
+		while (heapSize > 1) {
+			heapSize >>>= 1;
+			count++;
+		}
+
+		int maxRowSize = (int) Math.pow(2, count);
+		System.out.println(count + ": " + maxRowSize);
+
+		return maxRowSize;
+	}
+
+	private static void indent(int rowSize, int indentSize) {
+		System.out.printf("\n%-2s : %-2s * ", rowSize, indentSize);
 	}
 }
 
@@ -89,6 +120,20 @@ class MinHeap<N extends Number & Comparable<N>> extends Heap<N> {
 			swap(parentIndex(index), index);
 			bubbleUp(parentIndex(index));
 		}
+	}
+}
+
+class RandomInteger implements Supplier<Integer> {
+	private static Random rand = new Random();
+	private int range;
+
+	public RandomInteger(int range) {
+		this.range = range;
+	}
+
+	@Override
+	public Integer get() {
+		return rand.nextInt(range);
 	}
 }
 
