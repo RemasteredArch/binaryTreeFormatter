@@ -84,14 +84,11 @@ public class Formatter {
 			count++;
 		}
 
-		int maxRowSize = (int) Math.pow(2, count);
-		System.out.println(count + ": " + maxRowSize);
-
-		return maxRowSize;
+		return (int) Math.pow(2, count);
 	}
 
 	private static void indent(int rowSize, int indentSize) {
-		System.out.printf("\n%-2s : %-2s * ", rowSize, indentSize);
+		System.out.printf("\n%s%-2s%s : %s%-2s%s %s|%s ", FAINT, rowSize, RESET, FAINT, indentSize, RESET, BOLD, RESET);
 	}
 }
 
