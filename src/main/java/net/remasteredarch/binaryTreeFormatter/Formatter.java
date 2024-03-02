@@ -24,16 +24,20 @@ public class Formatter {
 	private static final int MAX_NODE_LENGTH = (NODE_NUM_RANGE - 1 + "").length();
 	private static final int NODE_COUNT = 20;
 
+	private static final String RESET = "\033[0m";
+	private static final String BOLD = "\033[1m";
+	private static final String FAINT = "\033[90m"; // gray text
+
 	public static void main(String[] args) {
 
 		Supplier<Integer> rand = new RandomInteger(NODE_NUM_RANGE);
 		MinHeap<Integer> heap = new MinHeap<>(NODE_NUM_RANGE, NODE_COUNT, rand);
 
-		System.out.println("Heap: " + heap.toString());
+		System.out.println(FAINT + BOLD + "Heap: " + RESET + FAINT + heap.toString() + RESET);
 
 		int splitIndex = 1;
 		int rowSize = 1;
-		System.out.print("* ");
+		System.out.print(BOLD + "\nTree:\n* " + RESET);
 		for (int heapIndex = 1; heapIndex < heap.size(); heapIndex++) {
 			System.out.printf("%-" + MAX_NODE_LENGTH + "s ", heap.get(heapIndex));
 			if (heapIndex == splitIndex) {
