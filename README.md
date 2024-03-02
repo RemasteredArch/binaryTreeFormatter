@@ -13,16 +13,16 @@ $ java src/main/java/net/remasteredarch/binaryTreeFormatter/Formatter.java
 ```
 
 ## Expected Output
-As of commit [`ac23c4c`](https://github.com/RemasteredArch/binaryTreeFormatter/commit/ac23c4c2b9ab8387504bdb963350d6d0b8c1d108), it should output something similar to the following:
+As of commit [`9258bee`](https://github.com/RemasteredArch/binaryTreeFormatter/tree/9258bee), it should output something similar to the following:
 ```
-Heap: [null, 4, 4, 6, 15, 8, 11, 7, 29, 27, 8, 15, 44, 12, 38, 21, 49, 36, 32, 32, 41]
+Heap (21): [null, 2, 5, 15, 5, 17, 21, 18, 36, 7, 21, 43, 35, 42, 18, 40, 45, 40, 26, 15, 49]
 
 Tree:
-* 4
-* 4  6
-* 15 8  11 7
-* 29 27 8  15 44 12 38 21
-* 49 36 32 32 41
+1  : 16 |                               02                                
+2  : 8  |               05                              15                
+4  : 4  |       05              17              21              18        
+8  : 2  |   36      07      21      43      35      42      18      40    
+16 : 1  | 45  40  26  15  49  
 ```
 *Note, however, that the true output contains font color/weight formatting and the values of the tree are random.*
 
