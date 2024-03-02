@@ -73,12 +73,14 @@ public class Formatter {
 		return padding;
 	}
 
+	// The largest true bit in the binary representation of the size is the length
+	// of the largest row. E.g. in 20 (110100), 010000 (16) is the largest true bit,
+	// ignoring the sign bit. This bit shifts until the sign bit is the only true
+	// bit left (heapSize > 1), at which point you'll know you've passed the real
+	// largest true bit.
 	private static int getMaxRowSize(int heapSize) {
 		int count = 0;
 
-		// there was logic when this was written.
-		// however, i realize that i implemented the logic wrong.
-		// i'm not quite sure why this works.
 		while (heapSize > 1) {
 			heapSize >>>= 1;
 			count++;
