@@ -34,7 +34,7 @@ public class Formatter {
 		Supplier<Integer> rand = new RandomInteger(NODE_NUM_RANGE);
 		MinHeap<Integer> heap = new MinHeap<>(NODE_NUM_RANGE, NODE_COUNT, rand);
 
-		System.out.println(FAINT + BOLD + "Heap (" + heap.size() + "):" + RESET + FAINT + heap.toString() + RESET);
+		System.out.println(FAINT + BOLD + "Heap (" + heap.size() + "): " + RESET + FAINT + heap.toString() + RESET);
 
 		System.out.print(BOLD + "\nTree:" + RESET);
 		printTree(heap);
