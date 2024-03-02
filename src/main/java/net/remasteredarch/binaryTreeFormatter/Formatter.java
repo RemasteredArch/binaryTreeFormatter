@@ -109,11 +109,11 @@ class Heap<T> {
 	}
 
 	public T get(int index) {
-		return (T) heap.get(index);
+		return heap.get(index);
 	}
 
 	public boolean isEmpty() {
-		return heap.isEmpty();
+		return heap.size() == 1;
 	}
 
 	public boolean hasParent(int index) {
@@ -169,7 +169,10 @@ class Heap<T> {
 	}
 
 	public T remove() {
-		return (T) heap.remove(lastNodeIndex());
+		if (isEmpty())
+			return null;
+
+		return heap.remove(lastNodeIndex());
 	}
 
 	protected void swap(int first, int second) {
