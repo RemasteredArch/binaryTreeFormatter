@@ -13,7 +13,7 @@ $ java src/main/java/net/remasteredarch/binaryTreeFormatter/Formatter.java
 ```
 
 ## Expected Output
-As of commit [`9258bee`](https://github.com/RemasteredArch/binaryTreeFormatter/tree/9258bee), it should output something similar to the following:
+As of commit [`1465eb4`](https://github.com/RemasteredArch/binaryTreeFormatter/tree/1465eb4), it should output something similar to the following:
 ```
 Heap (21): [null, 2, 5, 15, 5, 17, 21, 18, 36, 7, 21, 43, 35, 42, 18, 40, 45, 40, 26, 15, 49]
 
