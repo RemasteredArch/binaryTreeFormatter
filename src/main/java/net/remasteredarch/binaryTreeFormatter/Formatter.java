@@ -17,22 +17,33 @@ package net.remasteredarch.binaryTreeFormatter;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class Formatter {
-	private static final int NODE_NUM_RANGE = 50; // max value used for nodes in the heap (0..(NODE_NUM_RANGE -1))
-	private static final int MAX_NODE_LENGTH = (NODE_NUM_RANGE - 1 + "").length();
-	private static final int NODE_COUNT = 20;
-	private static final String PADDING = "  "; // between nodes in the tree
+	private static int nodeNumRange = 51; // max value used for nodes in the heap (0..(NODE_NUM_RANGE - 1))
+	private static int maxNodeLength = getMaxLength(nodeNumRange - 1);
+	private static int maxRowSizeLength;
+	private static int nodeCount = 20;
+	private static Option[] options;
+	private static String itemPadding;
 
+	private static final String NAME = "Binary Tree Formatter";
+	private static final String VERSION = "v0.2";
+	private static final String[] AUTHORS = { "2024 RemasteredArch" };
+	private static final String PURPOSE = "Prints out a binary tree with formatting.";
+	private static final String PATH = "src/main/java/net/remasteredarch/binaryTreeFormatter/Formatter.java";
+
+	private static final char PADDING = ' '; // between nodes in the tree
 	private static final String RESET = "\033[0m";
 	private static final String BOLD = "\033[1m";
 	private static final String FAINT = "\033[90m"; // gray text
 
 	public static void main(String[] args) {
+		parseOptions(args);
 
-		Supplier<Integer> rand = new RandomInteger(NODE_NUM_RANGE);
-		MinHeap<Integer> heap = new MinHeap<>(NODE_NUM_RANGE, NODE_COUNT, rand);
+		Supplier<Integer> rand = new RandomInteger(nodeNumRange);
+		MinHeap<Integer> heap = new MinHeap<>(nodeNumRange, nodeCount, rand);
 
 		System.out.println(FAINT + BOLD + "Heap (" + heap.size() + "): " + RESET + FAINT + heap.toString() + RESET);
 
@@ -43,19 +54,23 @@ public class Formatter {
 	private static void printTree(MinHeap<Integer> heap) {
 		int splitIndex = 1;
 		int rowSize = 1;
-		int indentSize = getMaxRowSize(NODE_COUNT);
-		String padding = makePadding(indentSize);
+		int indentSize = getMaxRowSize(nodeCount);
+		maxRowSizeLength = getMaxLength(indentSize);
+		String nodeLengthPadding = makePadding(maxNodeLength, "" + PADDING);
+		String padding = makePadding(indentSize - 1, nodeLengthPadding);
 
 		indent(rowSize, indentSize);
 
 		for (int heapIndex = 1; heapIndex < heap.size(); heapIndex++) {
-			System.out.printf("%s%0" + MAX_NODE_LENGTH + "d%s%s", padding, heap.get(heapIndex), padding, PADDING);
+			System.out.printf("%s%0" + maxNodeLength + "d%s%s", padding, heap.get(heapIndex), padding, nodeLengthPadding);
 
 			if (heapIndex == splitIndex) {
 				indentSize /= 2;
+				if (indentSize == 0)
+					break;
 				rowSize *= 2;
 				splitIndex += rowSize;
-				padding = makePadding(indentSize);
+				padding = makePadding(indentSize - 1, nodeLengthPadding);
 				indent(rowSize, indentSize);
 			}
 		}
@@ -63,11 +78,11 @@ public class Formatter {
 		System.out.println();
 	}
 
-	private static String makePadding(int rowSize) {
+	private static String makePadding(int length, String basePadding) {
 		String padding = "";
 
-		for (int i = 0; i < rowSize - 1; i++) {
-			padding += PADDING;
+		for (int i = 0; i < length; i++) {
+			padding += basePadding;
 		}
 
 		return padding;
@@ -90,7 +105,179 @@ public class Formatter {
 	}
 
 	private static void indent(int rowSize, int indentSize) {
-		System.out.printf("\n%s%-2s%s : %s%-2s%s %s|%s ", FAINT, rowSize, RESET, FAINT, indentSize, RESET, BOLD, RESET);
+		System.out.printf("\n%s%-" + maxRowSizeLength + "s%s : %s%-" + maxRowSizeLength + "s%s %s|%s ",
+				FAINT, rowSize, RESET, FAINT, indentSize, RESET, BOLD, RESET);
+	}
+
+	private static int getMaxLength(int number) {
+		return (number + "").length();
+	}
+
+	private static void parseOptions(String[] args) {
+		options = loadOptions();
+
+		argChecker: for (int i = 0; i < args.length; i++) {
+			String arg = args[i];
+
+			for (Option option : options) {
+				if (option.longForm.equals("--help") && option.match(arg)) {
+					option.action.accept(0);
+				}
+
+				if (option.match(arg)) {
+					i++;
+					option.action.accept(Integer.parseInt(args[i]));
+					continue argChecker;
+				}
+			}
+
+			System.err.println(BOLD + "Unrecognized Option \"" + RESET + arg + BOLD + "\"!\n" + RESET);
+			printHelpDialogue(1);
+		}
+	}
+
+	private static Option[] loadOptions() {
+		Option help = new Option("--help", "-h",
+				"Prints this help dialogue.",
+				exitCode -> printHelpDialogue(exitCode));
+
+		Option range = new Option("--range", "-r",
+				"Sets the highest possible value for a node (nodes can range from [0..range]) (int, default: "
+						+ (nodeNumRange - 1) + ").",
+				value -> setRange(value + 1));
+
+		Option nodes = new Option("--nodes", "-n",
+				"Sets the number of nodes in the tree (int, default: " + nodeCount + ").",
+				count -> setNodeCount(count));
+
+		Option[] array = { help, range, nodes };
+
+		Option.maxShortFormLength = 0;
+		Option.maxLongFormLength = 0;
+
+		for (Option option : array) {
+			int shortFormLength = option.shortForm.length();
+			int longFormLength = option.longForm.length();
+
+			if (shortFormLength > Option.maxShortFormLength)
+				Option.maxShortFormLength = shortFormLength;
+
+			if (longFormLength > Option.maxLongFormLength)
+				Option.maxLongFormLength = longFormLength;
+		}
+
+		return array;
+	}
+
+	private static void setRange(int range) {
+		nodeNumRange = range;
+		maxNodeLength = getMaxLength(nodeNumRange - 1);
+	}
+
+	private static void setNodeCount(int count) {
+		nodeCount = count;
+	}
+
+	private static void printHelpDialogue(int exitCode) {
+		HelpDialogueHelper helper = new HelpDialogueHelper(RESET, BOLD, FAINT);
+
+		String dialogue = helper.title(NAME, VERSION, PURPOSE);
+		for (String author : AUTHORS) {
+			dialogue += helper.author(author);
+		}
+
+		dialogue += helper.section("Usage");
+		dialogue += helper.item("$", "java", PATH, "[options]");
+
+		dialogue += String.format("\n%sOptions:%s\n", BOLD, RESET);
+		for (Option option : options) {
+			dialogue += helper.item(option);
+		}
+
+		dialogue += helper.section("License");
+		dialogue += helper.item(
+				NAME + " is licensed under the GNU General Public License version 3, or (at your option) any later version.");
+		dialogue += helper.item(
+				"You should have received a copy of the GNU General Public License along with " + NAME
+						+ ", found in LICENSE. If not, see <https://www.gnu.org/licenses/>.");
+
+		if (exitCode > 0) {
+			System.err.print(dialogue);
+		} else {
+			System.out.print(dialogue);
+		}
+
+		System.exit(exitCode);
+	}
+}
+
+class HelpDialogueHelper {
+	static final String INDENT = "  ";
+	String reset;
+	String bold;
+	String faint;
+
+	HelpDialogueHelper(String reset, String bold, String faint) {
+		this.reset = reset;
+		this.bold = bold;
+		this.faint = faint;
+	}
+
+	String title(String title, String version, String purpose) {
+		return String.format("%s%s (%s): %s%s\n", bold, title, version, reset, purpose);
+	}
+
+	String section(String title) {
+		return String.format("\n%s%s%s:%s\n", reset, bold, title, reset);
+	}
+
+	String author(String author) {
+		return String.format("%s%sCopyright © %s %s\n", INDENT, faint, author, reset);
+	}
+
+	String item(String prefix, String command, String path, String args) {
+		return String.format("%s%s%s%s %s %s %s%s%s\n", INDENT, faint, prefix, reset, command, path, faint, args, reset);
+	}
+
+	String item(String item) {
+		return String.format("%s%s%s%s\n", INDENT, faint, item, reset);
+	}
+
+	String item(Option option) {
+		String format = String.format("%s%%-" + Option.maxShortFormLength + "s %s:%s %%s\t %s%%s%s\n",
+				INDENT, faint, reset, faint, reset);
+
+		return option.toString(format);
+	}
+}
+
+class Option {
+	String longForm; // e.g. --help
+	static int maxLongFormLength;
+	String shortForm; // e.g. -h
+	static int maxShortFormLength;
+	String purpose; // e.g. prints a help dialogue
+	Consumer<Integer> action;
+
+	public Option(String longForm, String shortForm, String purpose, Consumer<Integer> action) {
+		this.longForm = longForm;
+		this.shortForm = shortForm;
+		this.purpose = purpose;
+		this.action = action;
+	}
+
+	public boolean match(String arg) {
+		return arg.equals(longForm) || arg.equals(shortForm);
+	}
+
+	@Override
+	public String toString() {
+		return toString("%-" + maxShortFormLength + "s | %-" + maxLongFormLength + "s\t %s");
+	}
+
+	// printf style formatting
+	public String toString(String format) {
+		return String.format(format, shortForm, longForm, purpose);
 	}
 }
 
