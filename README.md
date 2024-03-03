@@ -9,11 +9,16 @@ Written and tested with OpenJDK 21 on Ubuntu 20.04 & 22.04. It may work on other
 ## Usage
 
 ```
-$ java src/main/java/net/remasteredarch/binaryTreeFormatter/Formatter.java
+$ java src/main/java/net/remasteredarch/binaryTreeFormatter/Formatter.java [options]
 ```
+Options:
+ * `-h`/`--help` Prints a help dialogue
+ * `-r`/`--range` Sets the highest possible value for a node (nodes can range from [0..range]) (`int`, default: 50)
+ * `-n`/`--nodes` Sets the number of nodes in the tree (`int`, default: 20)
 
 ## Expected Output
-As of commit [`1465eb4`](https://github.com/RemasteredArch/binaryTreeFormatter/tree/1465eb4), it should output something similar to the following:
+
+As of commit [`10aa374`](https://github.com/RemasteredArch/binaryTreeFormatter/tree/10aa374), it should output something similar to the following when not supplied with options:
 ```
 Heap (21): [null, 2, 5, 15, 5, 17, 21, 18, 36, 7, 21, 43, 35, 42, 18, 40, 45, 40, 26, 15, 49]
 
