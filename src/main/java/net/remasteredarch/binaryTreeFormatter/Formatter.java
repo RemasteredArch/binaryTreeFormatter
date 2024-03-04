@@ -26,13 +26,14 @@ public class Formatter {
 	private static int maxRowSizeLength;
 	private static int nodeCount = 20;
 	private static Option[] options;
-	private static String itemPadding;
 
 	private static final String NAME = "Binary Tree Formatter";
 	private static final String VERSION = "v0.2";
 	private static final String[] AUTHORS = { "2024 RemasteredArch" };
 	private static final String PURPOSE = "Prints out a binary tree with formatting.";
 	private static final String PATH = "src/main/java/net/remasteredarch/binaryTreeFormatter/Formatter.java";
+	// private static final String PATH =
+	// Formatter.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 
 	private static final char PADDING = ' '; // between nodes in the tree
 	private static final String RESET = "\033[0m";
@@ -43,7 +44,7 @@ public class Formatter {
 		parseOptions(args);
 
 		Supplier<Integer> rand = new RandomInteger(nodeNumRange);
-		MinHeap<Integer> heap = new MinHeap<>(nodeNumRange, nodeCount, rand);
+		MinHeap<Integer> heap = new MinHeap<>(nodeCount, rand);
 
 		System.out.println(FAINT + BOLD + "Heap (" + heap.size() + "): " + RESET + FAINT + heap.toString() + RESET);
 
@@ -79,13 +80,7 @@ public class Formatter {
 	}
 
 	private static String makePadding(int length, String basePadding) {
-		String padding = "";
-
-		for (int i = 0; i < length; i++) {
-			padding += basePadding;
-		}
-
-		return padding;
+		return basePadding.repeat(length);
 	}
 
 	// The largest true bit in the binary representation of the size is the length
@@ -93,6 +88,8 @@ public class Formatter {
 	// ignoring the sign bit. This bit shifts until the sign bit is the only true
 	// bit left (heapSize > 1), at which point you'll know you've passed the real
 	// largest true bit.
+	//
+	// Does Integer.highestOneBit(heapSize); work?
 	private static int getMaxRowSize(int heapSize) {
 		int count = 0;
 
@@ -126,7 +123,13 @@ public class Formatter {
 
 				if (option.match(arg)) {
 					i++;
-					option.action.accept(Integer.parseInt(args[i]));
+					try {
+						option.action.accept(Integer.parseInt(args[i]));
+					} catch (NumberFormatException e) {
+						System.err.printf("%sError at \"%s\":%s Expected integer argument, received \"%s\".\n\n",
+								BOLD, arg, RESET, args[i]);
+						printHelpDialogue(1);
+					}
 					continue argChecker;
 				}
 			}
@@ -189,7 +192,7 @@ public class Formatter {
 		dialogue += helper.section("Usage");
 		dialogue += helper.item("$", "java", PATH, "[options]");
 
-		dialogue += String.format("\n%sOptions:%s\n", BOLD, RESET);
+		dialogue += helper.section("Options");
 		for (Option option : options) {
 			dialogue += helper.item(option);
 		}
@@ -201,7 +204,7 @@ public class Formatter {
 				"You should have received a copy of the GNU General Public License along with " + NAME
 						+ ", found in LICENSE. If not, see <https://www.gnu.org/licenses/>.");
 
-		if (exitCode > 0) {
+		if (exitCode != 0) {
 			System.err.print(dialogue);
 		} else {
 			System.out.print(dialogue);
@@ -285,7 +288,7 @@ class MinHeap<N extends Number & Comparable<N>> extends Heap<N> {
 	public MinHeap() {
 	}
 
-	public MinHeap(int valueRange, int values, Supplier<N> random) {
+	public MinHeap(int values, Supplier<N> random) {
 		for (int i = 0; i < values; i++) {
 			add(random.get());
 		}
@@ -302,7 +305,7 @@ class MinHeap<N extends Number & Comparable<N>> extends Heap<N> {
 		if (!hasParent(index))
 			return;
 
-		if (parent(index).compareTo(get(index)) == 1) {
+		if (parent(index).compareTo(get(index)) > 0) {
 			swap(parentIndex(index), index);
 			bubbleUp(parentIndex(index));
 		}
