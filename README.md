@@ -14,8 +14,9 @@ $ cargo run
 
 ## Expected Output
 
-As of commit [``](), it should output something similar to the following:
+As of commit [`f789eeb`](https://github.com/RemasteredArch/binaryTreeFormatter/commit/f789eeb), it should output something similar to the following:
 ```
+[20, 69, 39, 17, 64, 50, 14, 66, 37, 84]
 ```
 
 ## License
