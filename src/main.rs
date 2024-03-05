@@ -2,26 +2,16 @@
 
 use std::{
     fmt::{Display, Write},
-    ops::{Deref, DerefMut},
+    ops::{Deref, DerefMut, RangeInclusive},
     usize,
 };
 
-use rand::Rng;
+use rand::{distributions::uniform::SampleUniform, Rng};
 
 fn main() {
-    let mut rand = rand::thread_rng();
+    let heap: MinHeap<u32> = MinHeap::new_rand(100, 1..=1000);
 
-    let mut heap: MinHeap<u32> = MinHeap::new();
-
-    for _ in 1..=10 {
-        heap.push(rand.gen_range(1..100))
-    }
-
-    println!("{}", heap);
-}
-
-struct MinHeap<T: Ord> {
-    inner: Heap<T>,
+    println!("Heap ({}): {}\n", heap.len(), heap);
 }
 
 impl<T: Ord> Deref for MinHeap<T> {
@@ -37,9 +27,24 @@ impl<T: Ord> DerefMut for MinHeap<T> {
     }
 }
 
-impl<T: Ord + Display> MinHeap<T> {
+impl<T: Ord> MinHeap<T> {
     fn new() -> Self {
         Self { inner: Heap::new() }
+    }
+
+    fn new_rand(count: usize, range: RangeInclusive<T>) -> Self
+    where
+        T: Clone + SampleUniform,
+    {
+        let mut rand = rand::thread_rng();
+
+        let mut new_heap = Self::new();
+
+        for _ in 1..=count {
+            new_heap.push(rand.gen_range(range.clone()));
+        }
+
+        new_heap
     }
 
     fn push(&mut self, value: T) {
@@ -62,6 +67,11 @@ impl<T: Ord + Display> MinHeap<T> {
             _ => {}
         }
     }
+
+    fn to_padded_string(num: usize, width: usize, padding: char) -> String {
+        let padded_length = width - num.to_string().len();
+        padding.to_string().repeat(padded_length)
+    }
 }
 
 impl<T: Display + Ord> Display for MinHeap<T> {
@@ -82,7 +92,7 @@ impl<T> Heap<T> {
     }
 
     fn len(&self) -> usize {
-        self.inner.len() - 1
+        self.inner.len()
     }
 
     fn get(&self, index: usize) -> Option<&T> {
@@ -139,7 +149,7 @@ impl<T> Heap<T> {
     }
 
     fn last_node_index(&self) -> usize {
-        self.len()
+        self.len() - 1
     }
 
     fn parent_index(index: usize) -> usize {
@@ -155,7 +165,7 @@ impl<T> Heap<T> {
     }
 
     fn is_empty(&self) -> bool {
-        self.len() == 0
+        self.len() == 1
     }
 
     fn has_left_child(&self, index: usize) -> bool {
