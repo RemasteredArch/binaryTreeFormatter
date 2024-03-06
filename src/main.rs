@@ -9,9 +9,15 @@ use std::{
 use rand::{distributions::uniform::SampleUniform, Rng};
 
 fn main() {
-    let heap: MinHeap<u32> = MinHeap::new_rand(100, 1..=1000);
+    let count: usize = 10;
+    let max: u32 = 1000;
+    let heap: MinHeap<u32> = MinHeap::new_rand(count, 1..=max);
 
     println!("Heap ({}): {}\n", heap.len(), heap);
+}
+
+struct MinHeap<T: Ord> {
+    inner: Heap<T>,
 }
 
 impl<T: Ord> Deref for MinHeap<T> {
