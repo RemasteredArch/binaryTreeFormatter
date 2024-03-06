@@ -9,11 +9,76 @@ use std::{
 use rand::{distributions::uniform::SampleUniform, Rng};
 
 fn main() {
-    let count: usize = 10;
-    let max: u32 = 1000;
-    let heap: MinHeap<u32> = MinHeap::new_rand(count, 1..=max);
+    let count: usize = 15;
+    let max: u32 = 100;
+    let heap: HeapPrinter<u32> = HeapPrinter::new_rand(count, 1..=max);
 
     println!("Heap ({}): {}\n", heap.len(), heap);
+
+    heap.print(1, 1);
+}
+
+struct HeapPrinter<T: Ord> {
+    inner: MinHeap<T>,
+}
+
+impl<T: Ord> Deref for HeapPrinter<T> {
+    type Target = MinHeap<T>;
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl<T: Ord> DerefMut for HeapPrinter<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
+}
+
+impl<T: Ord + Display> HeapPrinter<T> {
+    fn new() -> Self {
+        Self {
+            inner: MinHeap::new(),
+        }
+    }
+
+    fn new_rand(count: usize, range: RangeInclusive<T>) -> Self
+    where
+        T: Clone + SampleUniform,
+    {
+        Self {
+            inner: MinHeap::new_rand(count, range),
+        }
+    }
+
+    fn print(&self, index: usize, row_size: usize) {
+        if index >= self.len() {
+            return;
+        }
+
+        let final_index: usize = index + row_size - 1;
+        self.print_row(index, final_index);
+        self.print(final_index + 1, row_size * 2);
+    }
+
+    fn print_row(&self, index: usize, final_index: usize) {
+        if let Some(node) = self.inner.get(index) {
+            print!("{} ", node);
+        }
+
+        if index == final_index {
+            println!();
+            return;
+        }
+
+        self.print_row(index + 1, final_index);
+    }
+}
+
+impl<T: Display + Ord> Display for HeapPrinter<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.inner.fmt(f)
+    }
 }
 
 struct MinHeap<T: Ord> {
