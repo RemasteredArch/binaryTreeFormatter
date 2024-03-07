@@ -9,13 +9,13 @@ use std::{
 use rand::{distributions::uniform::SampleUniform, Rng};
 
 fn main() {
-    let count: usize = 15;
+    let count: usize = 25;
     let max: u32 = 100;
     let heap: HeapPrinter<u32> = HeapPrinter::new_rand(count, 1..=max);
 
     println!("Heap ({}): {}\n", heap.len(), heap);
 
-    heap.print(1, 1);
+    heap.pretty_print();
 }
 
 struct HeapPrinter<T: Ord> {
@@ -51,6 +51,12 @@ impl<T: Ord + Display> HeapPrinter<T> {
         }
     }
 
+    fn pretty_print(&self) {
+        let count = self.len() - 1;
+        println!("{}: {}\n", count, self.get_largest_row_size(count));
+        self.print(1, 1);
+    }
+
     fn print(&self, index: usize, row_size: usize) {
         if index >= self.len() {
             return;
@@ -73,9 +79,16 @@ impl<T: Ord + Display> HeapPrinter<T> {
 
         self.print_row(index + 1, final_index);
     }
+
+    fn get_largest_row_size(&self, count: usize) -> u32 {
+        let largest_bit_index = usize::BITS - count.leading_zeros(); // e.g. 20 -> 00010100
+                                                                     //               ^ (5)
+        println!("{}", largest_bit_index);
+        2_u32.pow(largest_bit_index - 1) // 00010000 (index 5) -> 16
+    }
 }
 
-impl<T: Display + Ord> Display for HeapPrinter<T> {
+impl<T: Ord + Display> Display for HeapPrinter<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.inner.fmt(f)
     }
@@ -145,7 +158,7 @@ impl<T: Ord> MinHeap<T> {
     }
 }
 
-impl<T: Display + Ord> Display for MinHeap<T> {
+impl<T: Ord + Display> Display for MinHeap<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.inner.fmt(f)
     }
