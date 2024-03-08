@@ -9,7 +9,7 @@ use std::{
 use rand::{distributions::uniform::SampleUniform, Rng};
 
 fn main() {
-    let count: usize = 25;
+    let count: usize = 8192;
     let max: u32 = 100;
     let heap: HeapPrinter<u32> = HeapPrinter::new_rand(count, 1..=max);
 
@@ -20,6 +20,7 @@ fn main() {
 
 struct HeapPrinter<T: Ord> {
     inner: MinHeap<T>,
+    max_node_length: usize,
 }
 
 impl<T: Ord> Deref for HeapPrinter<T> {
@@ -39,6 +40,7 @@ impl<T: Ord + Display> HeapPrinter<T> {
     fn new() -> Self {
         Self {
             inner: MinHeap::new(),
+            max_node_length: 0,
         }
     }
 
@@ -47,29 +49,57 @@ impl<T: Ord + Display> HeapPrinter<T> {
         T: Clone + SampleUniform,
     {
         Self {
-            inner: MinHeap::new_rand(count, range),
+            inner: MinHeap::new_rand(count, range.clone()),
+            max_node_length: range.end().to_string().len(),
         }
     }
 
     fn pretty_print(&self) {
         let count = self.len() - 1;
-        println!("{}: {}\n", count, self.get_largest_row_size(count));
-        self.print(1, 1);
+        let inverse_row_size: u32 = self.get_largest_row_size(count);
+        self.print(
+            1,
+            1,
+            self.max_node_length,
+            inverse_row_size.try_into().unwrap(),
+        );
     }
 
-    fn print(&self, index: usize, row_size: usize) {
+    fn print(
+        &self,
+        index: usize,
+        row_size: usize,
+        max_node_length: usize,
+        inverse_row_size: usize,
+    ) {
         if index >= self.len() {
             return;
         }
 
         let final_index: usize = index + row_size - 1;
-        self.print_row(index, final_index);
-        self.print(final_index + 1, row_size * 2);
+        let node_length_padding: String = " ".repeat(max_node_length);
+        let row_padding: String = node_length_padding.repeat(inverse_row_size - 1);
+        self.print_row(index, final_index, row_padding, node_length_padding);
+        self.print(
+            final_index + 1,
+            row_size * 2,
+            max_node_length,
+            inverse_row_size / 2,
+        );
     }
 
-    fn print_row(&self, index: usize, final_index: usize) {
+    fn print_row(
+        &self,
+        index: usize,
+        final_index: usize,
+        row_padding: String,
+        node_length_padding: String,
+    ) {
         if let Some(node) = self.inner.get(index) {
-            print!("{} ", node);
+            print!(
+                "{0}{1:03$}{0}{2}",
+                row_padding, node, node_length_padding, self.max_node_length
+            );
         }
 
         if index == final_index {
@@ -77,13 +107,12 @@ impl<T: Ord + Display> HeapPrinter<T> {
             return;
         }
 
-        self.print_row(index + 1, final_index);
+        self.print_row(index + 1, final_index, row_padding, node_length_padding);
     }
 
     fn get_largest_row_size(&self, count: usize) -> u32 {
         let largest_bit_index = usize::BITS - count.leading_zeros(); // e.g. 20 -> 00010100
                                                                      //               ^ (5)
-        println!("{}", largest_bit_index);
         2_u32.pow(largest_bit_index - 1) // 00010000 (index 5) -> 16
     }
 }
