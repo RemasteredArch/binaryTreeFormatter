@@ -9,7 +9,7 @@ use std::{
 use rand::{distributions::uniform::SampleUniform, Rng};
 
 fn main() {
-    let count: usize = 8192;
+    let count: usize = 31;
     let max: u32 = 100;
     let heap: HeapPrinter<u32> = HeapPrinter::new_rand(count, 1..=max);
 
