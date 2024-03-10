@@ -3,6 +3,7 @@
 use std::{
     fmt::{Display, Write},
     ops::{Deref, DerefMut, RangeInclusive},
+    usize,
 };
 
 use rand::{distributions::uniform::SampleUniform, Rng};
@@ -14,7 +15,7 @@ fn main() {
 
     println!("Heap ({}): {}\n", heap.len(), heap);
 
-    heap.pretty_print();
+    heap.print();
 }
 
 struct HeapPrinter<T: Ord> {
@@ -64,47 +65,64 @@ impl<T: Ord + Display> HeapPrinter<T> {
         self.inner.push(value);
     }
 
-    fn pretty_print(&self) {
-        let count = self.len() - 1;
-        let inverse_row_size = self.get_largest_row_size(count);
-
-        self.print(1, 1, inverse_row_size);
-    }
-
-    fn print(&self, index: usize, row_size: usize, inverse_row_size: usize) {
-        if index >= self.len() {
-            return;
-        }
-
-        let final_index: usize = index + row_size - 1;
+    fn print(&self) {
         let node_length_padding = " ".repeat(self.max_node_length);
-        let row_padding = node_length_padding.repeat(inverse_row_size - 1);
+        let count = self.len() - 1;
 
-        self.print_row(index, final_index, row_padding, node_length_padding);
+        let mut row_size: usize = 1;
+        let mut index = row_size;
+        let mut final_index = row_size;
 
-        self.print(final_index + 1, row_size * 2, inverse_row_size / 2);
+        let mut inverse_row_size = self.get_largest_row_size(count);
+        let mut row_padding = node_length_padding.repeat(inverse_row_size - 1);
+
+        loop {
+            self.print_row(index, final_index, row_padding, node_length_padding.clone());
+
+            index = final_index + 1;
+
+            if index > self.last_node_index() {
+                break;
+            }
+
+            row_size *= 2;
+            final_index = index + row_size - 1;
+
+            inverse_row_size /= 2;
+            row_padding = node_length_padding.repeat(inverse_row_size - 1);
+        }
     }
 
     fn print_row(
         &self,
-        index: usize,
-        final_index: usize,
+        start_index: usize,
+        mut final_index: usize,
         row_padding: String,
         node_length_padding: String,
     ) {
-        if let Some(node) = self.inner.get(index) {
+        // don't let it overflow
+        if final_index > self.last_node_index() {
+            final_index = self.last_node_index();
+        }
+
+        for index in start_index..final_index {
+            // print node with a zero-padded fixed-width and with spacing before and after
             print!(
                 "{0}{1:03$}{0}{2}",
-                row_padding, node, node_length_padding, self.max_node_length
+                row_padding,
+                self.inner.get(index).unwrap(),
+                node_length_padding,
+                self.max_node_length
             );
         }
 
-        if index == final_index {
-            println!();
-            return;
-        }
-
-        self.print_row(index + 1, final_index, row_padding, node_length_padding);
+        // print last node with a line end and without spacing after
+        println!(
+            "{0}{1:02$}",
+            row_padding,
+            self.inner.get(final_index).unwrap(),
+            self.max_node_length
+        );
     }
 
     fn get_largest_row_size(&self, count: usize) -> usize {
