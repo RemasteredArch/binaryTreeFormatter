@@ -6,8 +6,9 @@
 * [**View full diff (`5c93bb3`-`rust`)**](https://github.com/RemasteredArch/binaryTreeFormatter/compare/5c93bb3..rust)  
 
 Changes:
- * Added a min heap implementation
- * Added pretty printing for the min heap
+* Added a min heap implementation
+* Added pretty printing for the min heap
+* Added more package information to [Cargo.toml](./Cargo.toml)
 
 ## v0.1
 **Commit Range:** [`55d47c1`](https://github.com/RemasteredArch/binaryTreeFormatter/commit/55d47c1)-[`5c93bb3`](https://github.com/RemasteredArch/binaryTreeFormatter/commit/5c93bb3)  
