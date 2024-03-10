@@ -54,38 +54,31 @@ impl<T: Ord + Display> HeapPrinter<T> {
         }
     }
 
+    fn push(&mut self, value: T) {
+        let length: usize = value.to_string().len();
+        if length > self.max_node_length {
+            self.max_node_length = length;
+        }
+
+        self.inner.push(value);
+    }
+
     fn pretty_print(&self) {
         let count = self.len() - 1;
         let inverse_row_size: u32 = self.get_largest_row_size(count);
-        self.print(
-            1,
-            1,
-            self.max_node_length,
-            inverse_row_size.try_into().unwrap(),
-        );
+        self.print(1, 1, inverse_row_size.try_into().unwrap());
     }
 
-    fn print(
-        &self,
-        index: usize,
-        row_size: usize,
-        max_node_length: usize,
-        inverse_row_size: usize,
-    ) {
+    fn print(&self, index: usize, row_size: usize, inverse_row_size: usize) {
         if index >= self.len() {
             return;
         }
 
         let final_index: usize = index + row_size - 1;
-        let node_length_padding: String = " ".repeat(max_node_length);
+        let node_length_padding: String = " ".repeat(self.max_node_length);
         let row_padding: String = node_length_padding.repeat(inverse_row_size - 1);
         self.print_row(index, final_index, row_padding, node_length_padding);
-        self.print(
-            final_index + 1,
-            row_size * 2,
-            max_node_length,
-            inverse_row_size / 2,
-        );
+        self.print(final_index + 1, row_size * 2, inverse_row_size / 2);
     }
 
     fn print_row(
