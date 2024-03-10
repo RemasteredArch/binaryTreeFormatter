@@ -4,6 +4,8 @@ Prints out a binary tree with formatting.
 
 Written and tested with OpenJDK 21 on Ubuntu 20.04 & 22.04. It may work on other versions, but there is no guarantee.
 
+Also implemented in the Rust programming language. This version is signficantly faster and subject to more improvement. See [the `rust` branch.](https://github.com/RemasteredArch/binaryTreeFormatter/tree/rust)
+
 *Binary Tree Formatter is work in progress software. **Use at your own risk!***
 
 ## Usage
