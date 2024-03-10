@@ -72,9 +72,7 @@ impl<T: Ord + Display> HeapPrinter<T> {
     fn push(&mut self, value: T) {
         let length = value.to_string().len();
 
-        if length > self.max_node_length {
-            self.max_node_length = length;
-        }
+        self.max_node_length = self.max_node_length.max(length);
 
         self.inner.push(value);
     }
@@ -91,7 +89,7 @@ impl<T: Ord + Display> HeapPrinter<T> {
         let mut row_padding = node_length_padding.repeat(inverse_row_size - 1);
 
         loop {
-            self.print_row(index, final_index, row_padding, node_length_padding.clone());
+            self.print_row(index, final_index, &row_padding, &node_length_padding);
 
             index = final_index + 1;
 
@@ -111,13 +109,14 @@ impl<T: Ord + Display> HeapPrinter<T> {
         &self,
         start_index: usize,
         mut final_index: usize,
-        row_padding: String,
-        node_length_padding: String,
+        row_padding: &str,
+        node_length_padding: &str,
     ) {
         // don't let it overflow
         if final_index > self.last_node_index() {
             final_index = self.last_node_index();
         }
+        final_index = final_index.min(self.last_node_index());
 
         for index in start_index..final_index {
             // print node with a zero-padded fixed-width and with spacing before and after
