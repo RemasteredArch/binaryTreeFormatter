@@ -3,7 +3,6 @@
 use std::{
     fmt::{Display, Write},
     ops::{Deref, DerefMut, RangeInclusive},
-    usize,
 };
 
 use rand::{distributions::uniform::SampleUniform, Rng};
