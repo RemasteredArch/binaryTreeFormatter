@@ -1,7 +1,13 @@
 [package]
 name = "binary_tree_formatter"
 version = "0.2.0"
+authors = ["RemasteredArch"]
 edition = "2021"
+description = "Simple coding exercise to create and pretty-print a binary tree."
+repository = "https://github.com/RemasteredArch/binaryTreeFormatter/tree/rust"
+license = "GPL-3.0-or-later"
+categories = ["command-line-utilities"] # should data-structures and such be added?
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
