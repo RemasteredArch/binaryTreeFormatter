@@ -87,7 +87,11 @@ public class Formatter {
 
 		for (int index = startIndex; index < finalIndex; index++) {
 			// print a node with a zero-padded fixed-width and with spacing before and after
-			System.out.printf("%s%0" + maxNodeLength + "d%1$s%3$s", rowPadding, heap.get(index), nodeLengthPadding);
+			System.out.printf("%s%0" + maxNodeLength + "d%s%s", rowPadding, heap.get(index), rowPadding, nodeLengthPadding);
+
+			// Cleaner but less performant alternative:
+			// System.out.printf("%s%0" + maxNodeLength + "d%1$s%3$s",
+			// rowPadding, heap.get(index), nodeLengthPadding);
 		}
 
 		// print last node with a line end and without spacing after
@@ -125,22 +129,8 @@ public class Formatter {
 		return basePadding.repeat(length);
 	}
 
-	// The largest true bit in the binary representation of the size is the length
-	// of the largest row. E.g. in 20 (110100), 010000 (16) is the largest true bit,
-	// ignoring the sign bit. This bit shifts until the sign bit is the only true
-	// bit left (heapSize > 1), at which point you'll know you've passed the real
-	// largest true bit.
-	//
-	// Does Integer.highestOneBit(heapSize); work?
 	private static int getMaxRowSize(int heapSize) {
-		int count = 0;
-
-		while (heapSize > 1) {
-			heapSize >>>= 1;
-			count++;
-		}
-
-		return (int) Math.pow(2, count);
+		return Integer.highestOneBit(heapSize);
 	}
 
 	private static void indent(int rowSize, int indentSize) {
