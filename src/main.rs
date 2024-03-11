@@ -113,9 +113,6 @@ impl<T: Ord + Display> HeapPrinter<T> {
         node_length_padding: &str,
     ) {
         // don't let it overflow
-        if final_index > self.last_node_index() {
-            final_index = self.last_node_index();
-        }
         final_index = final_index.min(self.last_node_index());
 
         for index in start_index..final_index {
