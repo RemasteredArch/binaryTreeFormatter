@@ -48,8 +48,50 @@ public class Formatter {
 
 		System.out.println(FAINT + BOLD + "Heap (" + heap.size() + "): " + RESET + FAINT + heap.toString() + RESET);
 
-		System.out.print(BOLD + "\nTree:" + RESET);
-		printTree(heap);
+		System.out.println(BOLD + "\nTree:" + RESET);
+		// printTree(heap);
+		newPrintTree(heap);
+	}
+
+	private static void newPrintTree(Heap<Integer> heap) {
+		final int lastNodeIndex = heap.lastNodeIndex();
+		final String nodeLengthPadding = ("" + PADDING).repeat(maxNodeLength);
+
+		int rowSize = 1;
+		int index = rowSize;
+		int finalIndex = rowSize;
+
+		int inverseRowSize = getMaxRowSize(nodeCount);
+		String rowPadding = nodeLengthPadding.repeat(inverseRowSize - 1);
+
+		while (true) {
+			printRow(index, finalIndex, rowPadding, nodeLengthPadding, lastNodeIndex, heap);
+
+			index = finalIndex + 1;
+
+			if (index > lastNodeIndex)
+				break;
+
+			rowSize *= 2;
+			finalIndex = index + rowSize - 1;
+
+			inverseRowSize /= 2;
+			rowPadding = nodeLengthPadding.repeat(inverseRowSize - 1);
+		}
+	}
+
+	private static void printRow(int startIndex, int finalIndex, String rowPadding, String nodeLengthPadding,
+			int lastNodeIndex, Heap<Integer> heap) {
+		// don't let it overflow
+		finalIndex = Math.min(finalIndex, lastNodeIndex);
+
+		for (int index = startIndex; index < finalIndex; index++) {
+			// print a node with a zero-padded fixed-width and with spacing before and after
+			System.out.printf("%s%0" + maxNodeLength + "d%1$s%3$s", rowPadding, heap.get(index), nodeLengthPadding);
+		}
+
+		// print last node with a line end and without spacing after
+		System.out.printf("%s%0" + maxNodeLength + "d\n", rowPadding, heap.get(finalIndex));
 	}
 
 	private static void printTree(MinHeap<Integer> heap) {
