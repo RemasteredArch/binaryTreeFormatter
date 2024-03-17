@@ -20,16 +20,28 @@ use std::{
     ops::{Deref, DerefMut, RangeInclusive},
 };
 
+use clap::Parser;
 use rand::{distributions::uniform::SampleUniform, Rng};
 
 fn main() {
-    let count: usize = 31;
-    let max: u32 = 100;
-    let heap: HeapPrinter<u32> = HeapPrinter::new_rand(count, 1..=max);
+    let arguments = Arguments::parse();
+    let heap: HeapPrinter<u32> = HeapPrinter::new_rand(arguments.nodes, 1..=arguments.range);
 
     println!("Heap ({}): {}\n", heap.len(), heap);
 
     heap.print();
+}
+
+#[derive(Parser)]
+#[command(about, version, long_about = None)]
+struct Arguments {
+    /// Defines the number of nodes the heap
+    #[arg(short = 'n', long = "nodes", default_value = "20")]
+    nodes: usize,
+
+    /// Defines the highest possible value for a node (nodes can range from [1..range])
+    #[arg(short = 'r', long = "range", default_value = "50")]
+    range: u32,
 }
 
 struct HeapPrinter<T: Ord> {
