@@ -10,6 +10,7 @@ Changes:
  * Added a help dialogue
  * Fixed a bug that assumed numbers would always be two characters in length
  * Fixed a bug that caused an empty row to appear if the final row was filled perfectly
+ * Refactored pretty printing to improve readability and maintainability (no measurable change in performance)
 
 ## v0.1
 **Commit Range:** [`55d47c1`](https://github.com/RemasteredArch/binaryTreeFormatter/commit/55d47c1)-[`6e82850`](https://github.com/RemasteredArch/binaryTreeFormatter/commit/6e82850)  
