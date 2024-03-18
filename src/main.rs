@@ -17,7 +17,9 @@
 
 use std::{
     fmt::{Display, Write},
+    num::ParseIntError,
     ops::{Deref, DerefMut, RangeInclusive},
+    str::FromStr,
 };
 
 use clap::Parser;
@@ -25,7 +27,7 @@ use rand::{distributions::uniform::SampleUniform, Rng};
 
 fn main() {
     let arguments = Arguments::parse();
-    let heap: HeapPrinter<u32> = HeapPrinter::new_rand(arguments.nodes, 1..=arguments.range);
+    let heap: HeapPrinter<u32> = HeapPrinter::new_rand(*arguments.nodes, 1..=*arguments.range);
 
     println!("Heap ({}): {}\n", heap.len(), heap);
 
@@ -37,11 +39,51 @@ fn main() {
 struct Arguments {
     /// Defines the number of nodes the heap
     #[arg(short = 'n', long = "nodes", default_value = "20")]
-    nodes: usize,
+    nodes: Nodes,
 
     /// Defines the highest possible value for a node (nodes can range from [1..range])
     #[arg(short = 'r', long = "range", default_value = "50")]
-    range: u32,
+    range: Range,
+}
+
+#[repr(transparent)]
+#[derive(Clone)]
+struct Nodes(usize);
+
+impl Deref for Nodes {
+    type Target = usize;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl FromStr for Nodes {
+    type Err = ParseIntError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        s.replace([',', '_'], "").parse().map(Nodes)
+    }
+}
+
+#[repr(transparent)]
+#[derive(Clone)]
+struct Range(u32);
+
+impl Deref for Range {
+    type Target = u32;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl FromStr for Range {
+    type Err = ParseIntError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        s.replace([',', '_'], "").parse().map(Range)
+    }
 }
 
 struct HeapPrinter<T: Ord> {
