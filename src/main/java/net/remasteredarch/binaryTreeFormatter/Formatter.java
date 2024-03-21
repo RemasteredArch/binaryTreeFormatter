@@ -45,21 +45,24 @@ public class Formatter {
     parseOptions(args);
 
     Supplier<Integer> rand = new RandomInteger(nodeNumRange);
-    BinaryTree<Integer> heap;
+    /*
+     * BinaryTree<Integer> heap;
+     * 
+     * if (treeType == TreeTypes.MinHeap) {
+     * heap = new MinHeap<>(nodeCount, rand);
+     * } else if (treeType == TreeTypes.RedBlackTree) {
+     * heap = new RedBlackTree<>(nodeCount, rand);
+     * } else { // this condition should never be met
+     * heap = new Heap<>();
+     * }
+     */
 
-    if (treeType == TreeTypes.MinHeap) {
-      heap = new MinHeap<>(nodeCount, rand);
-    } else if (treeType == TreeTypes.RedBlackTree) {
-      heap = new RedBlackTree<>(nodeCount, rand);
-    } else { // this condition should never be met
-      heap = new Heap<>();
-    }
-
+    RedBlackTree<Integer> heap = new RedBlackTree<>(nodeCount, rand);
     System.out.println(FAINT + BOLD + "Heap (" + heap.size() + "): " + RESET + FAINT + heap.toString() + RESET);
 
     System.out.println(BOLD + "\nTree:" + RESET);
-    // printTree(heap);
-    newPrintTree(heap);
+    printTree(heap);
+    // newPrintTree(heap);
   }
 
   private static void newPrintTree(BinaryTree<Integer> heap) {
@@ -107,7 +110,10 @@ public class Formatter {
     System.out.printf("%s%0" + maxNodeLength + "d\n", rowPadding, heap.get(finalIndex));
   }
 
-  private static void printTree(MinHeap<Integer> heap) {
+  // temporarily using the old method to print the red-black tree
+  // a better solution will come later but for now, getting the logic for tree
+  // balancing is more important
+  private static void printTree(RedBlackTree<Integer> heap) {
     int splitIndex = 1;
     int rowSize = 1;
     int indentSize = getMaxRowSize(nodeCount);
@@ -118,7 +124,15 @@ public class Formatter {
     indent(rowSize, indentSize);
 
     for (int heapIndex = 1; heapIndex < heap.size(); heapIndex++) {
-      System.out.printf("%s%0" + maxNodeLength + "d%s%s", padding, heap.get(heapIndex), padding, nodeLengthPadding);
+      RedBlackTree.Value<Integer> node = heap.getColored(heapIndex);
+      String color;
+      if (node.isRed()) {
+        color = RedBlackTree.Colors.RED.color;
+      } else {
+        color = RedBlackTree.Colors.BLACK.color;
+      }
+      Integer value = node.value();
+      System.out.printf("%s%s%0" + maxNodeLength + "d%s%s%s", padding, color, value, RESET, padding, nodeLengthPadding);
 
       if (heapIndex == splitIndex) {
         indentSize /= 2;
