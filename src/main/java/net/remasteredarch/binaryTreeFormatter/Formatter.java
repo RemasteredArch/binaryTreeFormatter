@@ -25,6 +25,7 @@ public class Formatter {
   private static int maxNodeLength = getMaxLength(nodeNumRange - 1);
   private static int maxRowSizeLength;
   private static int nodeCount = 20;
+  private static TreeTypes treeType = TreeTypes.RedBlackTree;
   private static Option[] options;
 
   private static final String NAME = "Binary Tree Formatter";
@@ -44,7 +45,15 @@ public class Formatter {
     parseOptions(args);
 
     Supplier<Integer> rand = new RandomInteger(nodeNumRange);
-    MinHeap<Integer> heap = new MinHeap<>(nodeCount, rand);
+    Heap<Integer> heap;
+
+    if (treeType == TreeTypes.MinHeap) {
+      heap = new MinHeap<>(nodeCount, rand);
+    } else if (treeType == TreeTypes.RedBlackTree) {
+      heap = new RedBlackTree<>(nodeCount, rand);
+    } else { // this condition should never be met
+      heap = new Heap<>();
+    }
 
     System.out.println(FAINT + BOLD + "Heap (" + heap.size() + "): " + RESET + FAINT + heap.toString() + RESET);
 
@@ -185,7 +194,11 @@ public class Formatter {
         "Sets the number of nodes in the tree (int, default: " + nodeCount + ").",
         count -> setNodeCount(count));
 
-    Option[] array = { help, range, nodes };
+    Option treeType = new Option("--type", "-t",
+        "Sets the kind of binary tree, where 0 is a min heap and 1 is a red-black tree (int, default: 0)",
+        type -> setTreeType(type));
+
+    Option[] array = { help, range, nodes, treeType };
 
     Option.maxShortFormLength = 0;
     Option.maxLongFormLength = 0;
@@ -202,6 +215,26 @@ public class Formatter {
     }
 
     return array;
+  }
+
+  private enum TreeTypes {
+    MinHeap,
+    RedBlackTree
+  }
+
+  private static void setTreeType(int type) {
+    if (type == 0) {
+      treeType = TreeTypes.MinHeap;
+      return;
+    }
+
+    if (type == 1) {
+      treeType = TreeTypes.RedBlackTree;
+      return;
+    }
+
+    System.err.println("Invalid tree type! Must be one of: 0 (min heap) or 1 (red-black tree)");
+    System.exit(1);
   }
 
   private static void setRange(int range) {
@@ -313,6 +346,70 @@ class Option {
   // printf style formatting
   public String toString(String format) {
     return String.format(format, shortForm, longForm, purpose);
+  }
+}
+
+class RedBlackTree<N extends Number & Comparable<N>> extends Heap<N> {
+  protected static enum Colors {
+    RED("\033[31m"),
+    BLACK("\033[30m"),
+    RESET("\033[0m");
+
+    final String color;
+
+    Colors(String color) {
+      this.color = color;
+    }
+  }
+
+  protected ArrayList<Value<N>> heap = new ArrayList<>();
+
+  public RedBlackTree() {
+  }
+
+  public RedBlackTree(int values, Supplier<N> random) {
+    for (int i = 0; i < values; i++) {
+      add(random.get());
+    }
+
+    System.out.println("RBT (" + heap.size() + "): " + heap.toString());
+  }
+
+  @Override
+  public void add(N value) {
+    Value<N> colored = new Value<N>(value, true);
+
+    heap.add(colored);
+  }
+
+  @Override
+  public N get(int index) {
+    return getColored(index).value;
+  }
+
+  public Value<N> getColored(int index) {
+    return heap.get(index);
+  }
+
+  @Override
+  public int size() {
+    return heap.size();
+  }
+
+  @Override
+  public final String toString() {
+    return heap.toString();
+  }
+
+  public record Value<T>(T value, boolean isRed) {
+    @Override
+    public final String toString() {
+      if (isRed) {
+        return Colors.RED.color + value + Colors.RESET.color;
+      }
+
+      return Colors.BLACK.color + value + Colors.RESET.color;
+    }
   }
 }
 
