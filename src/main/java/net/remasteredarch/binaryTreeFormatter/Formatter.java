@@ -29,7 +29,7 @@ public class Formatter {
   private static Option[] options;
 
   private static final String NAME = "Binary Tree Formatter";
-  private static final String VERSION = "v0.2";
+  private static final String VERSION = "v0.3";
   private static final String[] AUTHORS = { "2024 RemasteredArch" };
   private static final String PURPOSE = "Prints out a binary tree with formatting.";
   private static final String PATH = "src/main/java/net/remasteredarch/binaryTreeFormatter/Formatter.java";
@@ -45,7 +45,7 @@ public class Formatter {
     parseOptions(args);
 
     Supplier<Integer> rand = new RandomInteger(nodeNumRange);
-    Heap<Integer> heap;
+    BinaryTree<Integer> heap;
 
     if (treeType == TreeTypes.MinHeap) {
       heap = new MinHeap<>(nodeCount, rand);
@@ -62,7 +62,7 @@ public class Formatter {
     newPrintTree(heap);
   }
 
-  private static void newPrintTree(Heap<Integer> heap) {
+  private static void newPrintTree(BinaryTree<Integer> heap) {
     final int lastNodeIndex = heap.lastNodeIndex();
     final String nodeLengthPadding = ("" + PADDING).repeat(maxNodeLength);
 
@@ -90,7 +90,7 @@ public class Formatter {
   }
 
   private static void printRow(int startIndex, int finalIndex, String rowPadding, String nodeLengthPadding,
-      int lastNodeIndex, Heap<Integer> heap) {
+      int lastNodeIndex, BinaryTree<Integer> heap) {
     // don't let it overflow
     finalIndex = Math.min(finalIndex, lastNodeIndex);
 
@@ -349,7 +349,7 @@ class Option {
   }
 }
 
-class RedBlackTree<N extends Number & Comparable<N>> extends Heap<N> {
+class RedBlackTree<N extends Number & Comparable<N>> extends BinaryTree<N> {
   protected static enum Colors {
     RED("\033[31m"),
     BLACK("\033[30m"),
@@ -371,8 +371,11 @@ class RedBlackTree<N extends Number & Comparable<N>> extends Heap<N> {
     for (int i = 0; i < values; i++) {
       add(random.get());
     }
+  }
 
-    System.out.println("RBT (" + heap.size() + "): " + heap.toString());
+  @Override
+  public final String toString() {
+    return heap.toString();
   }
 
   @Override
@@ -397,8 +400,28 @@ class RedBlackTree<N extends Number & Comparable<N>> extends Heap<N> {
   }
 
   @Override
-  public final String toString() {
-    return heap.toString();
+  public N remove(int index) {
+    return removeColored(index).value;
+  }
+
+  public Value<N> removeColored(int index) {
+    return heap.remove(index);
+  }
+
+  @Override
+  public void set(int index, N value) {
+    heap.set(index, new Value<N>(value, true));
+  }
+
+  public void set(int index, Value<N> value) {
+    heap.set(index, value);
+  }
+
+  @Override
+  protected void swap(int first, int second) {
+    Value<N> temp = getColored(first);
+    set(first, getColored(second));
+    set(second, temp);
   }
 
   public record Value<T>(T value, boolean isRed) {
@@ -455,7 +478,7 @@ class RandomInteger implements Supplier<Integer> {
   }
 }
 
-class Heap<T> {
+class Heap<T> extends BinaryTree<T> {
   protected ArrayList<T> heap = new ArrayList<>();
 
   public Heap() {
@@ -467,21 +490,48 @@ class Heap<T> {
     return heap.toString();
   }
 
+  @Override
   public int size() {
     return heap.size();
   }
 
+  @Override
   public T get(int index) {
     return heap.get(index);
   }
 
+  @Override
+  public void add(T value) {
+    heap.add(value);
+  }
+
+  @Override
+  public T remove(int index) {
+    return heap.remove(index);
+  }
+
+  @Override
+  public void set(int index, T value) {
+    heap.set(index, value);
+  }
+
+}
+
+abstract class BinaryTree<T> {
+  @Override
+  abstract public String toString();
+
+  abstract public int size();
+
   public boolean isEmpty() {
-    return heap.size() == 1;
+    return size() == 1;
   }
 
   public boolean hasParent(int index) {
     return index > 1;
   }
+
+  abstract public T get(int index);
 
   protected T parent(int index) {
     return get(parentIndex(index));
@@ -492,7 +542,7 @@ class Heap<T> {
   }
 
   protected boolean hasLeftChild(int index) {
-    return leftChildIndex(index) < heap.size();
+    return leftChildIndex(index) < size();
   }
 
   protected T leftChild(int index) {
@@ -504,7 +554,7 @@ class Heap<T> {
   }
 
   protected boolean hasRightChild(int index) {
-    return rightChildIndex(index) < heap.size();
+    return rightChildIndex(index) < size();
   }
 
   protected T rightChild(int index) {
@@ -520,27 +570,29 @@ class Heap<T> {
   }
 
   protected int lastNodeIndex() {
-    return heap.size() - 1;
+    return size() - 1;
   }
 
   protected T peekMin() {
     return get(1);
   }
 
-  public void add(T value) {
-    heap.add(value);
-  }
+  abstract public void add(T value);
+
+  abstract public T remove(int index);
 
   public T remove() {
     if (isEmpty())
       return null;
 
-    return heap.remove(lastNodeIndex());
+    return remove(lastNodeIndex());
   }
+
+  abstract public void set(int index, T value);
 
   protected void swap(int first, int second) {
     T temp = get(first);
-    heap.set(first, get(second));
-    heap.set(second, temp);
+    set(first, get(second));
+    set(second, temp);
   }
 }
