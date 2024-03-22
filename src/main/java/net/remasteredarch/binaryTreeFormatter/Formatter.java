@@ -113,22 +113,22 @@ public class Formatter {
   // temporarily using the old method to print the red-black tree
   // a better solution will come later but for now, getting the logic for tree
   // balancing is more important
-  private static void printTree(RedBlackTree<Integer> heap) {
+  private static void printTree(RedBlackTree<Integer> tree) {
     int splitIndex = 1;
     int rowSize = 1;
-    int indentSize = getMaxRowSize(nodeCount);
+    int indentSize = getMaxRowSize(tree.size());
     maxRowSizeLength = getMaxLength(indentSize);
     String nodeLengthPadding = makePadding(maxNodeLength, "" + PADDING);
     String padding = makePadding(indentSize - 1, nodeLengthPadding);
 
     indent(rowSize, indentSize);
 
-    for (int heapIndex = 1; heapIndex < heap.size(); heapIndex++) {
-      RedBlackTree.Value<Integer> node = heap.getColored(heapIndex);
+    for (int heapIndex = 1; heapIndex < tree.size(); heapIndex++) {
+      RedBlackTree.Value<Integer> node = tree.getColored(heapIndex);
 
       if (node == null) {
         String black = "\033[30m";
-        System.out.printf("%s%s%s%s%s%s", padding, black, "NL", black, padding, nodeLengthPadding);
+        System.out.printf("%s%s%s%s%s%s", padding, FAINT, "NL", black, padding, nodeLengthPadding);
 
       } else {
         Integer value = node.value();
@@ -400,10 +400,45 @@ class RedBlackTree<N extends Number & Comparable<N>> extends BinaryTree<N> {
   @Override
   public void add(N value) {
     int index = binarySearchTreeAdd(value);
+
+    // case 1: index is the root
+    if (index == 1) {
+      recolor(index);
+      return;
+    }
+
+    // case 2: index's uncle is red
+    Value<N> uncle = coloredUncle(index);
+    if (uncle == null)
+      return; // should it?
+
+    if (uncle.isRed) {
+      recolor(uncleIndex(index));
+      return; // should it?
+    }
+
+    // case 3: index's uncle is black AND index, index's parent, and index's
+    // grandparent form a triangle
+    if (isLeftChild(index) && !isLeftChild(parentIndex(index))) {
+      // left rotation
+    } else if (!isLeftChild(index) && isLeftChild(parentIndex(index))) {
+      // right rotation
+    }
+
+    // case 4: index's uncle is black (line)
+  }
+
+  protected Value<N> coloredUncle(int index) {
+    return getColored(uncleIndex(index));
+  }
+
+  protected void recolor(int index) {
+    Value<N> value = getColored(index);
+    set(index, new Value<N>(value.value, !value.isRed));
   }
 
   protected int binarySearchTreeAdd(N value) {
-    Value<N> colored = new Value<N>(value, true);
+    Value<N> colored = new Value<>(value, true);
 
     int i = 1;
     while (true) {
@@ -591,6 +626,24 @@ abstract class BinaryTree<T> {
 
   protected int parentIndex(int index) {
     return index / 2;
+  }
+
+  protected T uncle(int index) {
+    return get(uncleIndex(index));
+  }
+
+  protected int uncleIndex(int index) {
+    int parentIndex = parentIndex(index);
+
+    if (isLeftChild(parentIndex)) {
+      return parentIndex + 1;
+    }
+
+    return parentIndex - 1;
+  }
+
+  protected boolean isLeftChild(int index) {
+    return (index % 2 == 0);
   }
 
   protected boolean hasLeftChild(int index) {
