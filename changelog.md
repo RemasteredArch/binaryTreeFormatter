@@ -1,9 +1,20 @@
 # Changelog
 
+## v0.3
+**Commit Range:** [`6671623`](https://github.com/RemasteredArch/binaryTreeFormatter/commit/6671623)-[`HEAD`](https://github.com/RemasteredArch/binaryTreeFormatter/commit/redBlackTree)  
+* [**Browse repository at `HEAD`**](https://github.com/RemasteredArch/binaryTreeFormatter/tree/redBlackTree)  
+* [**View full diff (`6671623`-`HEAD`)**](https://github.com/RemasteredArch/binaryTreeFormatter/compare/6671623..redBlackTree)  
+
+Changes:
+* Changed indentation from tabs to spaces
+* Added generation and pretty printing of red-black trees (in-progress)
+* Refactored to use a base `BinaryTree` abstract class that `Heap` and `RedBlackTree` extend from
+
+
 ## v0.2
-**Commit Range:** [`10aa374`](https://github.com/RemasteredArch/binaryTreeFormatter/commit/10aa374)-[`HEAD`](https://github.com/RemasteredArch/binaryTreeFormatter/commit/HEAD)  
-* [**Browse repository at `HEAD`**](https://github.com/RemasteredArch/binaryTreeFormatter/tree/HEAD)  
-* [**View full diff (`628250`-`HEAD`)**](https://github.com/RemasteredArch/binaryTreeFormatter/compare/6e82850..HEAD)  
+**Commit Range:** [`10aa374`](https://github.com/RemasteredArch/binaryTreeFormatter/commit/10aa374)-[`46b46a1`](https://github.com/RemasteredArch/binaryTreeFormatter/commit/46b46a1)  
+* [**Browse repository at `46b46a1`**](https://github.com/RemasteredArch/binaryTreeFormatter/tree/46b46a1)  
+* [**View full diff (`628250`-`46b46a1`)**](https://github.com/RemasteredArch/binaryTreeFormatter/compare/6e82850..46b46a1)  
 
 Changes:
  * Added support for user input
