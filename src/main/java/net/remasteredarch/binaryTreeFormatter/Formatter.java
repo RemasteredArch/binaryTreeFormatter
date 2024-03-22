@@ -125,14 +125,17 @@ public class Formatter {
 
     for (int heapIndex = 1; heapIndex < heap.size(); heapIndex++) {
       RedBlackTree.Value<Integer> node = heap.getColored(heapIndex);
-      String color;
-      if (node.isRed()) {
-        color = RedBlackTree.Colors.RED.color;
+
+      if (node == null) {
+        String black = "\033[30m";
+        System.out.printf("%s%s%s%s%s%s", padding, black, "NL", black, padding, nodeLengthPadding);
+
       } else {
-        color = RedBlackTree.Colors.BLACK.color;
+        Integer value = node.value();
+        String color = node.isRed() ? RedBlackTree.Colors.RED.color : RedBlackTree.Colors.BLACK.color;
+        System.out.printf("%s%s%0" + maxNodeLength + "d%s%s%s", padding, color, value, RESET, padding,
+            nodeLengthPadding);
       }
-      Integer value = node.value();
-      System.out.printf("%s%s%0" + maxNodeLength + "d%s%s%s", padding, color, value, RESET, padding, nodeLengthPadding);
 
       if (heapIndex == splitIndex) {
         indentSize /= 2;
@@ -146,6 +149,7 @@ public class Formatter {
     }
 
     System.out.println();
+
   }
 
   private static String makePadding(int length, String basePadding) {
@@ -363,6 +367,7 @@ class Option {
   }
 }
 
+// maybe abstract into a binary search tree, then a red-black tree
 class RedBlackTree<N extends Number & Comparable<N>> extends BinaryTree<N> {
   protected static enum Colors {
     RED("\033[31m"),
@@ -376,7 +381,7 @@ class RedBlackTree<N extends Number & Comparable<N>> extends BinaryTree<N> {
     }
   }
 
-  protected ArrayList<Value<N>> heap = new ArrayList<>();
+  protected ArrayList<Value<N>> tree = new ArrayList<>();
 
   public RedBlackTree() {
   }
@@ -389,28 +394,61 @@ class RedBlackTree<N extends Number & Comparable<N>> extends BinaryTree<N> {
 
   @Override
   public final String toString() {
-    return heap.toString();
+    return tree.toString();
   }
 
   @Override
   public void add(N value) {
+    int index = binarySearchTreeAdd(value);
+  }
+
+  protected int binarySearchTreeAdd(N value) {
     Value<N> colored = new Value<N>(value, true);
 
-    heap.add(colored);
+    int i = 1;
+    while (true) {
+      if (i >= size()) {
+        while (i > size()) {
+          tree.add(null);
+        }
+
+        tree.add(colored);
+        return i;
+      }
+
+      N currentValue = get(i);
+
+      if (currentValue == null) {
+        set(i, colored);
+        return i;
+      }
+
+      if (value.compareTo(currentValue) > 0) { // if value is greater than a given node, place it to the right
+        i = rightChildIndex(i);
+      } else {
+        i = leftChildIndex(i);
+      }
+    }
   }
 
   @Override
   public N get(int index) {
-    return getColored(index).value;
+    Value<N> colored = getColored(index);
+
+    if (colored == null) {
+      return null;
+    }
+
+    return colored.value;
   }
 
   public Value<N> getColored(int index) {
-    return heap.get(index);
+    return tree.get(index);
   }
 
   @Override
   public int size() {
-    return heap.size();
+    return tree.size();
   }
 
   @Override
@@ -419,16 +457,16 @@ class RedBlackTree<N extends Number & Comparable<N>> extends BinaryTree<N> {
   }
 
   public Value<N> removeColored(int index) {
-    return heap.remove(index);
+    return tree.remove(index);
   }
 
   @Override
   public void set(int index, N value) {
-    heap.set(index, new Value<N>(value, true));
+    tree.set(index, new Value<N>(value, true));
   }
 
   public void set(int index, Value<N> value) {
-    heap.set(index, value);
+    tree.set(index, value);
   }
 
   @Override
