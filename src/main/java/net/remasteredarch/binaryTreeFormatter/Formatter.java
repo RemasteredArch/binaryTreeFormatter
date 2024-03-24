@@ -24,7 +24,7 @@ public class Formatter {
   private static int nodeNumRange = 51; // max value used for nodes in the heap (0..(NODE_NUM_RANGE - 1))
   private static int maxNodeLength = getMaxLength(nodeNumRange - 1);
   private static int maxRowSizeLength;
-  private static int nodeCount = 20;
+  private static int nodeCount = 10;
   private static TreeTypes treeType = TreeTypes.RedBlackTree;
   private static Option[] options;
 
